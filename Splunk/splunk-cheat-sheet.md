@@ -98,6 +98,141 @@ A cheat sheet for Splunk, covering essential commands and techniques for analyzi
 - **Top 10 IPs by Bandwidth**:
   - `index=netflow | stats sum(bytes) as total_bytes by src_ip | sort -total_bytes | head 10`
 
+
+
+  Here's a cheat sheet for using Splunk search queries to discover and filter data, especially when you're unsure about the source, host, index, or sourcetype:
+
+### Exploring Unknown Data
+
+1. **Search for All Data**:
+   ```spl
+   index=*
+   ```
+   Retrieves all events across all indexes.
+
+2. **Identify Source and Sourcetype**:
+   ```spl
+   index=* | stats count by source sourcetype
+   ```
+   Provides a count of events grouped by their source and sourcetype.
+
+3. **Identify Host**:
+   ```spl
+   index=* | stats count by host
+   ```
+   Lists hosts and the count of events from each host.
+
+4. **Explore Data Fields**:
+   ```spl
+   index=* | fieldsummary
+   ```
+   Summarizes all fields in your data, including value distributions.
+
+5. **Refine Searches**:
+   ```spl
+   index=* sourcetype=<your_sourcetype>
+   ```
+   Searches data from a specific sourcetype.
+
+6. **Use Metadata Commands**:
+   ```spl
+   | metadata type=sources index=*      // Lists all sources
+   | metadata type=sourcetypes index=*  // Lists all sourcetypes
+   | metadata type=hosts index=*        // Lists all hosts
+   ```
+   Quickly see the different sources, sourcetypes, and hosts in your Splunk instance.
+
+### Filtering Events by Field Value
+
+1. **Exclude Specific Field Value**:
+   ```spl
+   Source_Country!="United States"
+   ```
+
+2. **Basic Search with Exclusion**:
+   ```spl
+   index=* Source_Country!="United States"
+   ```
+
+3. **Search within a Specific Index**:
+   ```spl
+   index=my_index Source_Country!="United States"
+   ```
+
+4. **Adding Additional Conditions**:
+   ```spl
+   index=my_index sourcetype=my_sourcetype Source_Country!="United States"
+   ```
+
+5. **Using Field Filtering in a Table**:
+   ```spl
+   index=my_index | where Source_Country!="United States" | table _time, Source_Country, other_field
+   ```
+
+### Counting Events from All Countries Except One
+
+```spl
+index=* Source_Country=* NOT Source_Country="France" | stats count
+```
+- `index=*`: Searches across all indexes.
+- `Source_Country=*`: Considers only events with the `Source_Country` field.
+- `NOT Source_Country="France"`: Excludes events where `Source_Country` is "France".
+- `| stats count`: Counts the number of events that meet the criteria.
+
+### Counting VPN Events by IP
+
+1. **Basic Search with Known VPN Sourcetype**:
+   ```spl
+   index=* sourcetype=<vpn_sourcetype> src_ip=107.3.206.58 | stats count
+   ```
+   Replace `<vpn_sourcetype>` with the actual sourcetype for VPN events.
+
+2. **Basic Search with Known Source**:
+   ```spl
+   index=* source=<vpn_source> src_ip=107.3.206.58 | stats count
+   ```
+   Replace `<vpn_source>` with the actual source for VPN events.
+
+3. **Keyword Search**:
+   ```spl
+   index=* src_ip=107.3.206.58 VPN | stats count
+   ```
+   Searches for events containing the keyword "VPN".
+
+4. **General Search and Filtering**:
+   ```spl
+   index=* src_ip=107.3.206.58 | search VPN | stats count
+   ```
+
+### Example Search Queries
+
+1. **Find all events from a specific IP address**:
+   ```spl
+   index=* src_ip="107.3.206.58"
+   ```
+
+2. **Count events by source type**:
+   ```spl
+   index=* | stats count by sourcetype
+   ```
+
+3. **Get a table of events with specific fields**:
+   ```spl
+   index=* | table _time, src_ip, dest_ip, user
+   ```
+
+4. **Calculate average response time**:
+   ```spl
+   index=* sourcetype=access_combined | stats avg(response_time)
+   ```
+
+5. **Count VPN events observed by a specific IP**:
+   ```spl
+   index="vpn_logs" | spath Source_ip | search Source_ip="107.3.206.58" | stats count
+   ```
+
+This cheat sheet covers essential Splunk search queries for discovering and analyzing your data. Adjust the examples based on your specific needs and Splunk environment.
+
 ### Additional Resources
 
 - **Splunk Documentation**: Comprehensive guides and tutorials [here](https://docs.splunk.com/Documentation/Splunk/latest/SearchTutorial/WelcometotheSearchTutorial).
