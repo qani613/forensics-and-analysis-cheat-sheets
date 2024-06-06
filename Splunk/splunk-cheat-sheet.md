@@ -100,9 +100,11 @@ A cheat sheet for Splunk, covering essential commands and techniques for analyzi
 
 
 
-  Here's a cheat sheet for using Splunk search queries to discover and filter data, especially when you're unsure about the source, host, index, or sourcetype:
 
-### Exploring Unknown Data
+
+A cheat sheet for using Splunk search queries to discover and filter data, especially when you're unsure about the source, host, index, or sourcetype:
+
+#### Exploring Unknown Data
 
 1. **Search for All Data**:
    ```spl
